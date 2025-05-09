@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Selection {
   text: string;
 }
 
 export interface ChatBubble {
-  type: 'ai' | 'user';
+  type: "ai" | "user";
   text?: string;
   modelType?: string;
   selections?: Selection[];
@@ -67,7 +68,7 @@ export interface ComposerContext {
 }
 
 export interface ComposerMessage {
-  type: 1 | 2;  // 1 for user, 2 for assistant
+  type: 1 | 2; // 1 for user, 2 for assistant
   bubbleId: string;
   text: string;
   richText: string;

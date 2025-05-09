@@ -1,52 +1,56 @@
-import { ChatTab } from "@/types/workspace"
-import { marked } from 'marked'
+import { ChatTab } from "@/types/workspace";
+import { marked } from "marked";
 
 export function convertChatToMarkdown(tab: ChatTab): string {
-  let markdown = `# ${tab.title || `Chat ${tab.id}`}\n\n`
-  markdown += `_Created: ${new Date(tab.timestamp).toLocaleString()}_\n\n---\n\n`
-  
-  tab.bubbles.forEach((bubble) => {
+  let markdown = `# ${tab.title || `Chat ${tab.id}`}\n\n`;
+  markdown += `_Created: ${new Date(
+    tab.timestamp
+  ).toLocaleString()}_\n\n---\n\n`;
+
+  tab.bubbles?.forEach((bubble) => {
     // Add speaker
-    markdown += `### ${bubble.type === 'ai' ? `AI (${bubble.modelType})` : 'User'}\n\n`
-    
+    markdown += `### ${
+      bubble.type === "ai" ? `AI (${bubble.modelType})` : "User"
+    }\n\n`;
+
     // Add selections if any
     if (bubble.selections?.length) {
-      markdown += '**Selected Code:**\n\n'
+      markdown += "**Selected Code:**\n\n";
       bubble.selections.forEach((selection) => {
-        markdown += '```\n' + selection.text + '\n```\n\n'
-      })
+        markdown += "```\n" + selection.text + "\n```\n\n";
+      });
     }
-    
+
     // Add message text or placeholder for empty AI messages
     if (bubble.text) {
-      markdown += bubble.text + '\n\n'
-    } else if (bubble.type === 'ai') {
-      markdown += '_[TERMINAL OUTPUT NOT INCLUDED]_\n\n'
+      markdown += bubble.text + "\n\n";
+    } else if (bubble.type === "ai") {
+      markdown += "_[TERMINAL OUTPUT NOT INCLUDED]_\n\n";
     }
-    
-    markdown += '---\n\n'
-  })
-  
-  return markdown
+
+    markdown += "---\n\n";
+  });
+
+  return markdown;
 }
 
 export function downloadMarkdown(tab: ChatTab) {
-  const markdown = convertChatToMarkdown(tab)
-  const blob = new Blob([markdown], { type: 'text/markdown' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${tab.title || `chat-${tab.id}`}.md`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  const markdown = convertChatToMarkdown(tab);
+  const blob = new Blob([markdown], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${tab.title || `chat-${tab.id}`}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export function downloadHTML(tab: ChatTab) {
-  const markdown = convertChatToMarkdown(tab)
-  const htmlContent = marked(markdown)
-  
+  const markdown = convertChatToMarkdown(tab);
+  const htmlContent = marked(markdown);
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -114,53 +118,53 @@ export function downloadHTML(tab: ChatTab) {
       ${htmlContent}
     </body>
   </html>
-  `
-  
-  const blob = new Blob([html], { type: 'text/html' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${tab.title || `chat-${tab.id}`}.html`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  `;
+
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${tab.title || `chat-${tab.id}`}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export async function downloadPDF(tab: ChatTab) {
   try {
-    const markdown = convertChatToMarkdown(tab)
-    const response = await fetch('/api/generate-pdf', {
-      method: 'POST',
+    const markdown = convertChatToMarkdown(tab);
+    const response = await fetch("/api/generate-pdf", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         markdown,
-        title: tab.title || `Chat ${tab.id}`
+        title: tab.title || `Chat ${tab.id}`,
       }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to generate PDF')
+      throw new Error("Failed to generate PDF");
     }
 
-    const blob = await response.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${tab.title || `chat-${tab.id}`}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${tab.title || `chat-${tab.id}`}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Failed to download PDF:', error)
-    alert('Failed to generate PDF. This feature is not yet implemented.')
+    console.error("Failed to download PDF:", error);
+    alert("Failed to generate PDF. This feature is not yet implemented.");
   }
 }
 
 export function copyMarkdown(tab: ChatTab) {
-  const markdown = convertChatToMarkdown(tab)
-  navigator.clipboard.writeText(markdown)
+  const markdown = convertChatToMarkdown(tab);
+  navigator.clipboard.writeText(markdown);
 }
